@@ -1,4 +1,6 @@
-import { ApiHandler } from "sst/node/api";
+import { APIGatewayProxyHandlerV2WithJWTAuthorizer } from "aws-lambda";
+
+
 import { v4 as uuidv4 } from 'uuid';
 
 const mockEvents: any[] = [
@@ -10,7 +12,7 @@ const mockEvents: any[] = [
   {
     title: "Enchanted Garden Gala",
     description: "Experience the magic of an Enchanted Garden Gala. Stroll through a lush garden setting, indulge in delectable food and drink, and dance the night away with friends and loved ones.",
-    location:  "789 Market St, Cityville, NY"
+    location: "789 Market St, Cityville, NY"
   },
   {
     title: "Midnight Masquerade",
@@ -30,18 +32,23 @@ const mockEvents: any[] = [
 ];
 
 
-
-
-for(let x of mockEvents) {
+for (let x of mockEvents) {
   x.id = uuidv4();
   x.date = (new Date()).toISOString();
 }
 
 
+export const handler: APIGatewayProxyHandlerV2WithJWTAuthorizer = async (event) => {
+  const claims = event.requestContext.authorizer.jwt.claims;
+  console.log('type of claims: ', typeof claims);
+  console.log('jwt claims: ', claims);
+  
+  const username = claims['cognito:username'];
+  const userId = claims.sub;
+  const email = claims.email;
 
-export const handler = ApiHandler(async (_evt) => {
   return {
     statusCode: 200,
     body: JSON.stringify(mockEvents)
   };
-});
+};

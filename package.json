@@ -22,6 +22,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.315.0",
     "uuid": "^9.0.0"
   }
 }
