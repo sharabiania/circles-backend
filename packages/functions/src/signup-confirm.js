@@ -20,15 +20,13 @@ export async function handler(event) {
       body: 'user is confirmed'
     };
   }
-  catch (err) {  
+  catch (err) {
     console.error('error name: ', err.name);
     console.error('Sign Up Error: ', err.message);
     let body = "Internal server error";
     let statusCode = 500;
 
-    if (
-      err.name === "SerializationException"
-    ) {
+    if (err.name === "SerializationException") {
       body = err.message;
       statusCode = 400;
     }
@@ -42,9 +40,6 @@ export async function handler(event) {
     else if (err.name === "AliasExistsException") {
       body = err.message;
     }
-
-
-    
 
     return {
       statusCode,

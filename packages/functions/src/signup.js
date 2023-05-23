@@ -1,6 +1,9 @@
 // NOTE: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-cognito-identity-provider/classes/signupcommand.html
 import { CognitoIdentityProviderClient, SignUpCommand } from "@aws-sdk/client-cognito-identity-provider"; // ES Modules import
 
+
+// TODO: create a pre-signup lambda to check if the email already
+// exists.
 export async function handler(event) {
   try {
     const client = new CognitoIdentityProviderClient({ region: process.env.REGION });

@@ -1,6 +1,9 @@
 import { StackContext, Api, Cognito } from "sst/constructs";
 
+
 export function API({ stack }: StackContext) {
+
+  const getResourceName = (name: string) => `${stack.stage}-${name}`;
 
   // Create User Pool
   const auth = new Cognito(stack, "auth", {
@@ -32,7 +35,7 @@ export function API({ stack }: StackContext) {
       "GET /": {
         authorizer: "none",
         function: {
-          functionName: 'getApiStatus',
+          functionName: getResourceName('getApiStatus'),
           description: 'this is a test lambda function to handle the public api call',
           handler: "packages/functions/src/lambda.handler",
         }
@@ -40,7 +43,7 @@ export function API({ stack }: StackContext) {
       "POST /api/login": {
         authorizer: "none",
         function: {
-          functionName: 'loginHandler',
+          functionName: getResourceName('loginHandler'),
           description: 'handler to login to Cognito and return JWT token',
           handler: "packages/functions/src/login.handler",
           environment: {
@@ -52,7 +55,7 @@ export function API({ stack }: StackContext) {
       "POST /api/signup": {
         authorizer: "none",
         function: {
-          functionName: 'signupHandler',
+          functionName: getResourceName('signupHandler'),
           description: 'handler to signup a new user in Cognito',
           handler: "packages/functions/src/signup.handler",
           environment: {
@@ -64,7 +67,7 @@ export function API({ stack }: StackContext) {
       "POST /api/signup/confirm": {
         authorizer: "none",
         function: {
-          functionName: 'confirmSignUpHandler',
+          functionName: getResourceName('confirmSignUpHandler'),
           description: 'handler to confirm user signup',
           handler: "packages/functions/src/signup-confirm.handler",
           environment: {
@@ -75,9 +78,16 @@ export function API({ stack }: StackContext) {
       },
       "GET /api/event": {
         function: {
-          functionName: 'getEventsHandler',
+          functionName: getResourceName('getEventsHandler'),
           description: 'api handler to get all events',
           handler: "packages/functions/src/get-events.handler"
+        }
+      },
+      "POST /api/event" : {
+        function: {
+          functionName: getResourceName('createEventHandler'),
+          description: 'api handler to create a new event',
+          handler: "packages/functions/src/create-event.handler"
         }
       }
     },
