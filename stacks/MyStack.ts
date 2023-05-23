@@ -82,7 +82,7 @@ export function API({ stack }: StackContext) {
           description: 'api handler to get all events',
           handler: "packages/functions/src/get-events.handler"
         }
-      },
+      },   
       "POST /api/event" : {
         function: {
           functionName: getResourceName('createEventHandler'),
