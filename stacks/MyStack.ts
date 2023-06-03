@@ -89,7 +89,14 @@ export function API({ stack }: StackContext) {
           description: 'api handler to create a new event',
           handler: "packages/functions/src/create-event.handler"
         }
-      }
+      },
+      "GET /api/master": {
+        function: {
+          functionName: getResourceName('getMastersHandler'),
+          description: 'api handler to get all masters',
+          handler: "packages/functions/src/get-masters.handler"
+        }
+      },
     },
   });
 
