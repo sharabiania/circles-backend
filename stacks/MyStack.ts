@@ -1,4 +1,4 @@
-import { StackContext, Api, Cognito } from "sst/constructs";
+import { StackContext, Api, Cognito, Table } from "sst/constructs";
 
 
 export function API({ stack }: StackContext) {
@@ -17,6 +17,16 @@ export function API({ stack }: StackContext) {
     }
   });
 
+  // Create DynamoDB Table
+  const table = new Table(stack, 'circles', {
+    fields: {
+      pk: "string",
+      sk: "string",
+      data: "string" // TODO: can we make this a Map ?
+    },
+    primaryIndex: { partitionKey: "pk", sortKey: 'sk' }
+  });
+
   // Create API
   const api = new Api(stack, "api", {
     authorizers: {
@@ -29,7 +39,7 @@ export function API({ stack }: StackContext) {
       }
     },
     defaults: {
-      authorizer: "jwt"
+      authorizer: "jwt"      
     },
     routes: {
       "GET /": {
@@ -37,7 +47,7 @@ export function API({ stack }: StackContext) {
         function: {
           functionName: getResourceName('getApiStatus'),
           description: 'this is a test lambda function to handle the public api call',
-          handler: "packages/functions/src/lambda.handler",
+          handler: "packages/functions/src/lambda.handler",          
         }
       },
       "POST /api/login": {
@@ -80,14 +90,24 @@ export function API({ stack }: StackContext) {
         function: {
           functionName: getResourceName('getEventsHandler'),
           description: 'api handler to get all events',
-          handler: "packages/functions/src/get-events.handler"
+          handler: "packages/functions/src/get-events.handler",
+          environment: {
+            DB_TABLE_NAME: table.tableName,
+            REGION: stack.region
+          },
+          permissions: [table] // TODO: limit the permission to dynamodb:Query
         }
       },   
       "POST /api/event" : {
         function: {
           functionName: getResourceName('createEventHandler'),
           description: 'api handler to create a new event',
-          handler: "packages/functions/src/create-event.handler"
+          handler: "packages/functions/src/create-event.handler",
+          environment: {
+            DB_TABLE_NAME: table.tableName,
+            REGION: stack.region
+          },
+          permissions: [table] // TODO: limit the permission to dynamodb:PutItem
         }
       },
       "GET /api/master": {
