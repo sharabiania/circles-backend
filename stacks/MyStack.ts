@@ -114,7 +114,24 @@ export function API({ stack }: StackContext) {
         function: {
           functionName: getResourceName('getMastersHandler'),
           description: 'api handler to get all masters',
-          handler: "packages/functions/src/get-masters.handler"
+          handler: "packages/functions/src/get-masters.handler",
+          environment: {
+            DB_TABLE_NAME: table.tableName,
+            REGION: stack.region
+          },
+          permissions: [table] // TODO: limit the permission to dynamodb:Scan
+        },
+      },
+      "POST /api/master": {
+        function: {
+          functionName: getResourceName('createMasterHandler'),
+          description: 'api handler to create a new master',
+          handler: "packages/functions/src/create-master.handler",
+          environment: {
+            DB_TABLE_NAME: table.tableName,
+            REGION: stack.region
+          },
+          permissions: [table] // TODO: limit the permission to dynamodb:PutItem
         }
       },
     },

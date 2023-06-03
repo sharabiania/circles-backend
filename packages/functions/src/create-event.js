@@ -12,19 +12,21 @@ export async function handler(event) {
 
     const db = new DbService(process.env.DB_TABLE_NAME, process.env.REGION);
 
-    const pk = `EVENT#${uuidv4()}`;
-    const sk = `EVENT#${datetime}`;
     const eventModel = new EventModel(
-      title, description, location, datetime, 
+      title, description, location, datetime, "",
+      new Date().toISOString(),
       username, 
-      new Date().toISOString()
     );
 
-    const res = await db.putItem(pk, sk, eventModel);  
+    const res = await db.putItem(db.getEventPK(uuidv4()), db.getEventSK(datetime), eventModel);  
     return res;
   }
   catch (ex) {
     logger.error(ex);
+    return {
+      statusCode: 500,
+      body: ex
+    }
   }
 }
 

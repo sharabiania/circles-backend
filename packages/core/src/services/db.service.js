@@ -11,8 +11,7 @@ export class DbService {
   async putItem(pk, sk, payload) {
 
     try {
-      this.logger.debug(payload);
-      this.logger.debug("payload string: ", JSON.stringify(payload));
+      
       const command = new PutItemCommand({
         TableName: this.tableName,
         Item: {
@@ -52,4 +51,6 @@ export class DbService {
 
   getEventPK = (id = "") => `EVENT#${id}`;
   getEventSK = (datetime = "") => `EVENT#${datetime}`;
+  getMasterPK = (id = "") => `MASTER#${id}`;
+  getMasterSK = (username = "") => `MASTER#${username}`
 }

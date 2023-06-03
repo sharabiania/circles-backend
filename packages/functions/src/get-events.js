@@ -1,13 +1,7 @@
 import { DbService, LoggerService } from '../../core/src/services/index.js';
 
 export const handler = async (event) => {
-  // const claims = event.requestContext.authorizer.jwt.claims;
-  // console.log('type of claims: ', typeof claims);
-  // console.log('jwt claims: ', claims);
 
-  // const username = claims['cognito:username'];
-  // const userId = claims.sub;
-  // const email = claims.email;
   const logger = new LoggerService('GetEventsHandler');
   
   try {
