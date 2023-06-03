@@ -1,4 +1,4 @@
-import { DynamoDBClient, ScanCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, ScanCommand, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { LoggerService } from './logger.service';
 
@@ -45,6 +45,30 @@ export class DbService {
       return unmarshalledItems;
     }
     catch (ex) {
+      this.logger.error(ex);
+    }
+  }
+
+  
+  async getItem(partitionKey) {
+    console.log(partitionKey);
+    try {
+
+      const command = new GetItemCommand({
+        TableName: this.tableName,
+        Key: {
+          pk: { S: partitionKey }
+          // sk: { S: } // THIS IS REQUIRED
+          // SEE: https://stackoverflow.com/questions/25886403/dynamodb-the-provided-key-element-does-not-match-the-schema
+        }
+      });
+      const data = await this.client.send(command);
+      return data;
+      const unmarshalledItems = data.Items.map(item => JSON.parse(unmarshall(item).data));
+      return unmarshalledItems;
+    }
+    catch (ex) {
+      console.log(JSON.stringify(ex));
       this.logger.error(ex);
     }
   }

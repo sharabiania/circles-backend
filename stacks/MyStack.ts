@@ -97,6 +97,18 @@ export function API({ stack }: StackContext) {
           },
           permissions: [table] // TODO: limit the permission to dynamodb:Query
         }
+      },
+      "GET /api/event/{id}": {
+        function: {
+          functionName: getResourceName('getOneEventHandler'),
+          description: 'api handler to one event by id',
+          handler: "packages/functions/src/get-one-event.handler",
+          environment: {
+            DB_TABLE_NAME: table.tableName,
+            REGION: stack.region
+          },
+          permissions: [table] // TODO: limit the permission to dynamodb:Query
+        }
       },   
       "POST /api/event" : {
         function: {
