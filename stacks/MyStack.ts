@@ -1,4 +1,4 @@
-import { StackContext, Api, Cognito, Table } from "sst/constructs";
+import { StackContext, Api, Bucket, Cognito, Table } from "sst/constructs";
 
 
 export function API({ stack }: StackContext) {
@@ -16,6 +16,9 @@ export function API({ stack }: StackContext) {
       }
     }
   });
+
+  // Create S3 Bucket
+  const bucket = new Bucket(stack, 'circles-bucket')
 
   // Create DynamoDB Table
   const table = new Table(stack, 'circles', {
@@ -122,6 +125,32 @@ export function API({ stack }: StackContext) {
           permissions: [table] // TODO: limit the permission to dynamodb:PutItem
         }
       },
+      "POST /api/event/{id}/image" : {
+        function: {
+          functionName: getResourceName('uploadEventImage'),
+          description: 'api handler upload event image.',
+          handler: "packages/functions/src/upload-event-image.handler",
+          environment: {
+            DB_TABLE_NAME: table.tableName,
+            REGION: stack.region,
+            BUCKET_NAME: bucket.bucketName,
+          },
+          permissions: [table, bucket] // TODO: limit the permission to dynamodb:PutItem
+        }
+      },
+      "GET /api/images/{key}" : {
+        function: {
+          functionName: getResourceName('getImage'),
+          description: 'api handler get an image from S3 based on key',
+          handler: "packages/functions/src/get-image.handler",
+          environment: {
+            DB_TABLE_NAME: table.tableName,
+            REGION: stack.region,
+            BUCKET_NAME: bucket.bucketName,
+          },
+          permissions: [table, bucket] // TODO: limit the permission to dynamodb:PutItem
+        }
+      },
       "GET /api/master": {
         function: {
           functionName: getResourceName('getMastersHandler'),
@@ -146,6 +175,7 @@ export function API({ stack }: StackContext) {
           permissions: [table] // TODO: limit the permission to dynamodb:PutItem
         }
       },
+      
     },
   });
 

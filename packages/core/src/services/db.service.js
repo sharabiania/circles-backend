@@ -1,4 +1,8 @@
-import { DynamoDBClient, ScanCommand, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, ScanCommand,   
+  PutItemCommand, 
+  UpdateItemCommand,
+  QueryCommand,
+   } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { LoggerService } from './logger.service';
 
@@ -50,26 +54,54 @@ export class DbService {
   }
 
   
-  async getItem(partitionKey) {
-    console.log(partitionKey);
+  async getItem(partitionKey, skBeginsWith) {
+    
     try {
-
-      const command = new GetItemCommand({
+     
+      const command = new QueryCommand({
         TableName: this.tableName,
-        Key: {
-          pk: { S: partitionKey }
-          // sk: { S: } // THIS IS REQUIRED
-          // SEE: https://stackoverflow.com/questions/25886403/dynamodb-the-provided-key-element-does-not-match-the-schema
+        KeyConditionExpression: 'pk = :partitionKey AND begins_with(sk, :skBeginsWith)',
+        ExpressionAttributeValues: {
+          ':partitionKey': { S: partitionKey },
+          ':skBeginsWith': { S: skBeginsWith }
         }
       });
-      const data = await this.client.send(command);
-      return data;
+      
+      const data = await this.client.send(command);      
+      
       const unmarshalledItems = data.Items.map(item => JSON.parse(unmarshall(item).data));
       return unmarshalledItems;
     }
     catch (ex) {
       console.log(JSON.stringify(ex));
       this.logger.error(ex);
+    }
+  }
+
+  async updateItem(pk, sk, item) {
+   this.logger.debug('pk, sk: ', pk, sk);
+    try {
+      const command = new UpdateItemCommand({
+        TableName: this.tableName,
+        Key: {
+          pk: { S: pk },
+          sk: { S: sk },
+        },
+        UpdateExpression: 'SET #dataName = :dataValue',
+        ExpressionAttributeNames: {
+          '#dataName': 'data'
+        },
+        ExpressionAttributeValues: {
+          ':dataValue': { S: JSON.stringify(item) }
+        }
+      });
+      const result = await this.client.send(command);
+      this.logger.debug('db result: ', result);
+      return result;
+    }
+    catch(ex) {
+      this.logger.error(ex);
+      throw ex;
     }
   }
 

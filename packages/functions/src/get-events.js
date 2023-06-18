@@ -6,7 +6,7 @@ export const handler = async (event) => {
   
   try {
     const db = new DbService(process.env.DB_TABLE_NAME, process.env.REGION);
-    const res = await db.scanItems(db.getEventPK(), db.getEventSK());
+    const res = await db.getItem(db.getEventPK(), db.getEventSK());
     return {
       statusCode: 200,
       body: JSON.stringify(res)
