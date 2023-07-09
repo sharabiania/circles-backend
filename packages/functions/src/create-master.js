@@ -1,6 +1,5 @@
 import { LoggerService, DbService } from '../../core/src/services/index.js';
 import { MasterModel } from '../../core/src/models/index.js';
-import { v4 as uuidv4 } from 'uuid';
 
 export async function handler(event) {
   const logger = new LoggerService('CreateMasterHandler');
@@ -8,12 +7,13 @@ export async function handler(event) {
   try {
     const claims = event.requestContext.authorizer.jwt.claims;
     const username = claims['cognito:username'];
+    const userId = claims['sub'];
     const { fullname, location } = JSON.parse(event.body);
     const masterModel = new MasterModel(
-      uuidv4(),
+      userId,
       fullname, location, "",
       new Date().toISOString(),
-      username
+      userId
     );
     const db = new DbService(process.env.DB_TABLE_NAME, process.env.REGION);
     const res = await db.putItem(

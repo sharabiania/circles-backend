@@ -112,7 +112,31 @@ export function API({ stack }: StackContext) {
           },
           permissions: [table] // TODO: limit the permission to dynamodb:Query
         }
-      },   
+      },
+      "POST /api/event/{id}/join": {
+        function: {
+          functionName: getResourceName('joinEventHandler'),
+          description: 'api handler send a request to join an event.',
+          handler: "packages/functions/src/join-event.handler",
+          environment: {
+            DB_TABLE_NAME: table.tableName,
+            REGION: stack.region
+          },
+          permissions: [table] // TODO: limit the permission
+        }
+      },
+      "POST /api/event/{id}/cancel": {
+        function: {
+          functionName: getResourceName('cancelJoinRequestHandler'),
+          description: 'api handler cancel a join request to an event.',
+          handler: "packages/functions/src/cancel-join-event.handler",
+          environment: {
+            DB_TABLE_NAME: table.tableName,
+            REGION: stack.region
+          },
+          permissions: [table] // TODO: limit the permission
+        }
+      },            
       "POST /api/event" : {
         function: {
           functionName: getResourceName('createEventHandler'),

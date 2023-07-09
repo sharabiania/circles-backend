@@ -32,12 +32,13 @@ export class BucketService {
     });
 
     const data = await this.client.send(command);
-    this.logger.debug('======= getItem data ======== ');
-    const base64Image = data.Body.transformToString();
-    // Buffer.from(data.Body.transformToByteArray()).toString('base64');
+    // const base64Image = await data.Body.transformToString();
+    const byteArray = await data.Body.transformToByteArray();
+    
+    const image = Buffer.from(byteArray).toString('base64');
 
     // return base64Image;
-    return base64Image;
+    return image;
   }
 
 

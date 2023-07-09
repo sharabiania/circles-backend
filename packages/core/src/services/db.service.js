@@ -81,20 +81,28 @@ export class DbService {
   async updateItem(pk, sk, item) {
    this.logger.debug('pk, sk: ', pk, sk);
     try {
-      const command = new UpdateItemCommand({
+      const command = new PutItemCommand({
         TableName: this.tableName,
-        Key: {
+        Item: {
           pk: { S: pk },
           sk: { S: sk },
-        },
-        UpdateExpression: 'SET #dataName = :dataValue',
-        ExpressionAttributeNames: {
-          '#dataName': 'data'
-        },
-        ExpressionAttributeValues: {
-          ':dataValue': { S: JSON.stringify(item) }
+          data: { S: JSON.stringify(item) }
         }
       });
+      // const command = new UpdateItemCommand({
+      //   TableName: this.tableName,
+      //   Key: {
+      //     pk: { S: pk },
+      //     sk: { S: sk },
+      //   },
+      //   UpdateExpression: 'SET #dataName = :dataValue',
+      //   ExpressionAttributeNames: {
+      //     '#dataName': 'data'
+      //   },
+      //   ExpressionAttributeValues: {
+      //     ':dataValue': { S: JSON.stringify(item) }
+      //   }
+      // });
       const result = await this.client.send(command);
       this.logger.debug('db result: ', result);
       return result;
@@ -106,7 +114,7 @@ export class DbService {
   }
 
   getEventPK = (id = "") => `EVENT#${id}`;
-  getEventSK = (datetime = "") => `EVENT#${datetime}`;
+  getEventSK = (masterId = "") => `MASTER#${masterId}`;
   getMasterPK = (id = "") => `MASTER#${id}`;
-  getMasterSK = (username = "") => `MASTER#${username}`
+  getMasterSK = (username = "") => `MASTER#${username}`;
 }
